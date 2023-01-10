@@ -9,6 +9,7 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -71,11 +72,30 @@ public class ExcelUtility {
     }
 
     public void setCellData(String sheetName, int rowNumber, int colNumber, String data) throws IOException {
+        File xlFile = new File(path);
+
+        // if the file is not existed
+        if (!xlFile.exists()) {
+            workbook = new XSSFWorkbook();
+            outputStream = new FileOutputStream(path);
+            workbook.write(outputStream);
+        }
+
         inputStream = new FileInputStream(path);
         workbook = new XSSFWorkbook(inputStream);
+
+        // if sheet not existed
+        if (workbook.getSheetIndex(sheetName) == -1)
+            workbook.createSheet(sheetName);
+
         sheet = workbook.getSheet(sheetName);
+
+        // if row not existed
+        if (sheet.getRow(rowNumber) == null)
+            sheet.createRow(rowNumber);
+
         row = sheet.getRow(rowNumber);
-        cell = row.getCell(colNumber);
+        cell = row.createCell(colNumber);
         cell.setCellValue(data);
 
         outputStream = new FileOutputStream(path);
